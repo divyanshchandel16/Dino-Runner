@@ -49,6 +49,7 @@ function isCollision() {
 function monitorCollision() {
   setInterval(() => {
     // console.log("checking")
+    collided = false
     if (!collided && isCollision()) {
       console.log("collided")
       collided = true

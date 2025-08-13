@@ -80,7 +80,7 @@ body {
     position: absolute;
     bottom: 0;
     left: 80%;
-    animation: move 10s linear infinite;
+    animation: move 5s linear infinite;
     /* higher the second value of animation property slower the movement of obstacle*/
 }
 
