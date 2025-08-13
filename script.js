@@ -15,7 +15,8 @@ function jump() {
 
 document.addEventListener("keydown", function (event) {
   if (event.code === "Space" || event.code === "ArrowUp") {
-    event.preventDefault(); 
+    event.preventDefault();
     jump();
   }
-});
+})
+
