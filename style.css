@@ -18,7 +18,7 @@ body {
     width: 100%;
     height: 60vh;
     background-image: url('./assets/background-img2.jpg');
-    background-size: auto 100%; 
+    background-size: auto 100%;
     background-position: 0 0;
     background-repeat: repeat-x;
     animation: bgScroll 30s linear infinite;
@@ -33,6 +33,7 @@ body {
     0% {
         background-position: 0 0;
     }
+
     100% {
         background-position: -100% 0;
     }
@@ -79,7 +80,8 @@ body {
     position: absolute;
     bottom: 0;
     left: 80%;
-    animation: move 3s linear infinite;
+    animation: move 10s linear infinite;
+    /* higher the second value of animation property slower the movement of obstacle*/
 }
 
 @keyframes move {
