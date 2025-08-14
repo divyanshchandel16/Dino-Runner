@@ -1,11 +1,19 @@
 const dino = document.querySelector(".dino");
 let isJumping = false;
 
+
+
+const jumpSound = new Audio("./assets/sounds/jump2.wav");
+
 function jump() {
   if (isJumping) return;
 
   isJumping = true;
   dino.classList.add("jump");
+
+
+  jumpSound.currentTime = 0; 
+  jumpSound.play();
 
   setTimeout(() => {
     dino.classList.remove("jump");
