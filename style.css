@@ -24,8 +24,8 @@ body {
     animation: bgScroll 30s linear infinite;
 
     display: flex;
-    justify-content: center;
-    align-items: center;
+    /* justify-content: center; */
+    align-items: space-around;
     border: 2px solid #c22222;
 }
 
@@ -38,9 +38,6 @@ body {
         background-position: -100% 0;
     }
 }
-
-
-
 
 
 
@@ -62,10 +59,13 @@ body {
     0% {
         bottom: 0;
     }
+
     50% {
-        bottom: 300px; /* Adjust this value for jump height */
+        bottom: 300px;
+        /* Adjust this value for jump height */
 
     }
+
     100% {
         bottom: 0;
     }
@@ -99,4 +99,18 @@ body {
     100% {
         left: -100px;
     }
+}
+
+.score-board {
+    position: relative;
+    top: 5%;
+    left: 70%;
+    height: 15%;
+    display: flex;
+    color: #fff
+}
+
+.score-board>div {
+    padding: 10%;
+    width: 100;
 }

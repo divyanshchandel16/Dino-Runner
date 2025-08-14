@@ -12,7 +12,7 @@ function jump() {
   dino.classList.add("jump");
 
 
-  jumpSound.currentTime = 0; 
+  jumpSound.currentTime = 0;
   jumpSound.play();
 
   setTimeout(() => {
@@ -62,11 +62,30 @@ function monitorCollision() {
       console.log("collided")
       collided = true
       alert("You Died")
+      if (highScore < score) {
+        highScore = score
+        showhighScore.innerText = highScore
+      }
+      setScore(0)
+
     }
   }, 10)
 }
-
-function main() {
+let score = 0, highScore = 0
+let showScore = document.querySelector('.score')
+let showhighScore = document.querySelector('.highScore')
+function setScore(newScore) {
+  score = newScore
+}
+function updateScore() {
+  setInterval(() => {
+    setScore(score + 1)
+    showScore.innerText = score
+    console.log(score)
+  }, 100)
   monitorCollision();
+}
+function main() {
+  updateScore();
 }
 main();
