@@ -10,7 +10,7 @@ function jump() {
   setTimeout(() => {
     dino.classList.remove("jump");
     isJumping = false;
-  }, 500);
+  }, 1200);
 }
 
 document.addEventListener("keydown", function (event) {
