@@ -1,19 +1,62 @@
+// ========== ELEMENT SELECTORS ==========
 const dino = document.querySelector(".dino");
+const obstacleEle = document.querySelector(".obstacle");
+const showScore = document.querySelector(".score");
+const showHighScore = document.querySelector(".highScore");
+const startBtn = document.getElementById("startBtn");
+const gameContainer = document.querySelector(".game-container");
+
+// ========== GAME STATE ==========
 let isJumping = false;
+let collided = false;
+let score = 0;
+let highScore = localStorage.getItem("highScore")
+  ? parseInt(localStorage.getItem("highScore"))
+  : 0;
+let gameStarted = false;
+let scoreInterval = null;
+let collisionInterval = null;
 
+// ========== SOUND SETUP ==========
+const sounds = {
+  start: new Audio("./assets/sounds/start.wav"),
+  jump: new Audio("./assets/sounds/jump.wav"),
+  gameOver: new Audio("./assets/sounds/game-end.wav"),
+  running: new Audio("./assets/sounds/running.wav"),
+  milestone100: new Audio("./assets/sounds/milestone.mp3"),
+  milestone200: new Audio("./assets/sounds/milestone.mp3"),
+  milestone300: new Audio("./assets/sounds/milestone.mp3"),
+  newHighScore: new Audio("./assets/sounds/highscore.mp3"),
+};
 
+// Preload all sounds
+Object.values(sounds).forEach((audio) => {
+  audio.preload = "auto";
+});
+sounds.running.loop = true;
 
-const jumpSound = new Audio("./assets/sounds/jump2.wav");
+// ========== AUDIO SEQUENCE ==========
+function playStartThenRunning() {
+  sounds.start.currentTime = 0;
+  sounds.start.play().catch(() => {
+    sounds.running.play();
+  });
 
+  sounds.start.addEventListener("ended", function onEnded() {
+    sounds.running.currentTime = 0;
+    sounds.running.play();
+    sounds.start.removeEventListener("ended", onEnded);
+  });
+}
+
+// ========== JUMP FUNCTION ==========
 function jump() {
-  if (isJumping) return;
-
+  if (!gameStarted || isJumping) return;
   isJumping = true;
   dino.classList.add("jump");
 
-
-  jumpSound.currentTime = 0;
-  jumpSound.play();
+  sounds.jump.currentTime = 0;
+  sounds.jump.play();
 
   setTimeout(() => {
     dino.classList.remove("jump");
@@ -21,107 +64,94 @@ function jump() {
   }, 1200);
 }
 
+// ========== COLLISION DETECTION ==========
+function isCollision() {
+  const player = dino.getBoundingClientRect();
+  const obstacle = obstacleEle.getBoundingClientRect();
+
+  const xCollision =
+    obstacle.left < player.right && player.left < obstacle.right;
+  const yCollision = obstacle.top < player.bottom;
+
+  return xCollision && yCollision;
+}
+
+// ========== MONITOR COLLISION ==========
+function startCollisionMonitor() {
+  collisionInterval = setInterval(() => {
+    if (!collided && isCollision()) {
+      collided = true;
+      sounds.running.pause();
+      sounds.running.currentTime = 0;
+
+      sounds.gameOver.currentTime = 0;
+      sounds.gameOver.play();
+
+      setTimeout(() => {
+        alert("You Died");
+
+        if (score > highScore) {
+          highScore = score;
+          localStorage.setItem("highScore", highScore);
+          showHighScore.innerText = highScore;
+          sounds.newHighScore.currentTime = 0;
+          sounds.newHighScore.play();
+        }
+
+        resetGame();
+      }, 100);
+    }
+  }, 10);
+}
+
+// ========== SCORE MANAGEMENT ==========
+function startScoreCounter() {
+  scoreInterval = setInterval(() => {
+    if (!collided && gameStarted) {
+      score += 1;
+      showScore.innerText = score;
+
+      if (score === 100) sounds.milestone100.play();
+      else if (score === 200) sounds.milestone200.play();
+      else if (score === 300) sounds.milestone300.play();
+    }
+  }, 100);
+}
+
+// ========== RESET GAME ==========
+function resetGame() {
+  clearInterval(scoreInterval);
+  clearInterval(collisionInterval);
+  gameContainer.classList.remove("scrolling");
+  obstacleEle.classList.remove("moving");
+  score = 0;
+  showScore.innerText = score;
+  collided = false;
+  gameStarted = false;
+  startBtn.style.display = "inline-block";
+}
+
+// ========== START GAME ==========
+startBtn.addEventListener("click", () => {
+  if (!gameStarted) {
+    startBtn.style.display = "none";
+    gameStarted = true;
+    gameContainer.classList.add("scrolling");
+    obstacleEle.classList.add("moving");
+    playStartThenRunning();
+    startScoreCounter();
+    startCollisionMonitor();
+  }
+});
+
+// ========== KEY HANDLING ==========
 document.addEventListener("keydown", function (event) {
-  if (event.code === "Space" || event.code === "ArrowUp") {
+  if ((event.code === "Space" || event.code === "ArrowUp") && gameStarted) {
     event.preventDefault();
     jump();
   }
-})
+});
 
-// Collision Detection
-const playerEle = document.querySelector(".dino")
-const obstacleEle = document.querySelector(".obstacle")
-
-let collided = false;
-let collisionInterval = null;
-let scoreInterval = null;
-
-function isCollision() {
-  const playerRect = playerEle.getBoundingClientRect();
-  const obstacleRect = obstacleEle.getBoundingClientRect();
-  console.log(playerRect)
-  console.log(obstacleRect)
-
-  const playerL = playerRect.left;
-  const playerR = playerRect.right;
-  const playerB = playerRect.bottom;
-
-  const obstacleL = obstacleRect.left;
-  const obstacleR = obstacleRect.right;
-  const obstacleT = obstacleRect.top;
-
-  const xCollision = obstacleL < playerR && playerL < obstacleR;
-  const yCollision = obstacleT < playerB; 
-  collided = false
-  if (xCollision && yCollision) collided = true
-  return collided;
-}
-
-function monitorCollision() {
-  // store the interval so we can clear it on stop
-  collisionInterval = setInterval(() => {
-    collided = false
-    if (!collided && isCollision()) {
-      collided = true
-      // update high score
-      if (highScore < score) {
-        highScore = score
-        localStorage.setItem('highScore', String(highScore))
-        showhighScore.innerText = highScore
-      }
-      stopGame()
-      setScore(0)
-    }
-  }, 10)
-}
-
-// Restart Screen
-const restartGameElement = document.querySelector('.restart-screen')
-const gameContainer = document.querySelector('.game-container')
-const restartBtn = document.querySelector('.btn-restart')
-
-function stopGame(){
-  // clear running intervals
-  if (collisionInterval) clearInterval(collisionInterval)
-  if (scoreInterval) clearInterval(scoreInterval)
-
-  // pause obstacle, background
-  if (obstacleEle) obstacleEle.style.animationPlayState = 'paused'
-  if (gameContainer) gameContainer.style.animationPlayState = 'paused'
-
-  // show restart overlay
-  restartGameElement.classList.add('show')
-}
-
-let score = 0
-let highScore = parseInt(localStorage.getItem('highScore')) || 0
-let showScore = document.querySelector('.score')
-let showhighScore = document.querySelector('.highScore')
-
-function setScore(newScore) {
-  score = newScore
-}
-
-function updateScore() {
-  // store interval so it can be cleared when game stops
-  scoreInterval = setInterval(() => {
-    setScore(score + 1)
-    if (showScore) showScore.innerText = score
-  }, 100)
-  // ensure collision monitor runs
-  monitorCollision();
-}
-
-// restart button to reload the page.
-if (restartBtn) {
-  restartBtn.addEventListener('click', () => {
-    location.reload()
-  })
-}
-
-// show high score from local storage on load
-if (showhighScore) showhighScore.innerText = highScore
-function main() {
-  updateScore();
-}
-main();
+// ========== INITIALIZE UI ==========
+showScore.innerText = score;
+showHighScore.innerText = highScore;
