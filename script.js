@@ -107,7 +107,7 @@ function startCollisionMonitor() {
           sounds.newHighScore.currentTime = 0;
           sounds.newHighScore.play();
         }
-
+        console.log("Score : "+score+" HighScore : "+ highScore);
         resetGame();
       }, 100);
     }
