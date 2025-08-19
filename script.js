@@ -1,5 +1,7 @@
 // ========== ELEMENT SELECTORS ==========
 const dino = document.querySelector(".dino");
+const dinoHitbox = document.querySelector('.dino-hitbox');
+const dinoImg = document.querySelector('.dino-img');
 const obstacleEle = document.querySelector(".obstacle");
 const showScore = document.querySelector(".score");
 const showHighScore = document.querySelector(".highScore");
@@ -53,24 +55,32 @@ function playStartThenRunning() {
 function jump() {
   if (!gameStarted || isJumping) return;
   isJumping = true;
+
+  // Apply animation class to the dino container (so bottom changes) and also
+  // to the hitbox and visual image so they remain in sync.
   dino.classList.add("jump");
+  if (dinoHitbox) dinoHitbox.classList.add('jump');
+  if (dinoImg) dinoImg.classList.add('jump');
 
   sounds.jump.currentTime = 0;
   sounds.jump.play();
 
+  // CSS animation duration is 1.9s (1900ms)
   setTimeout(() => {
-    dino.classList.remove("jump");
+  dino.classList.remove("jump");
+  if (dinoHitbox) dinoHitbox.classList.remove('jump');
+  if (dinoImg) dinoImg.classList.remove('jump');
     isJumping = false;
-  }, 1200);
+  }, 1900);
 }
 
 // ========== COLLISION DETECTION ==========
 function isCollision() {
-  const player = dino.getBoundingClientRect();
+  // Collision is based on the smaller .dino-hitbox element (centered inside .dino)
+  const player = (dinoHitbox || dino).getBoundingClientRect();
   const obstacle = obstacleEle.getBoundingClientRect();
 
-  const xCollision =
-    obstacle.left < player.right && player.left < obstacle.right;
+  const xCollision = obstacle.left < player.right && player.left < obstacle.right;
   const yCollision = obstacle.top < player.bottom;
 
   return xCollision && yCollision;
@@ -150,6 +160,11 @@ document.addEventListener("keydown", function (event) {
     event.preventDefault();
     jump();
   }
+});
+
+// allow clicking/tapping the game container to jump
+gameContainer.addEventListener('click', () => {
+  if (gameStarted) jump();
 });
 
 // ========== INITIALIZE UI ==========

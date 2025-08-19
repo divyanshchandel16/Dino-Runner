@@ -56,17 +56,38 @@ body {
 .dino {
     width: 150px;
     height: 150px;
-    /* background-color: #1038db; */
     position: absolute;
     bottom: 0;
     left: 30%;
-    /* border: 2px solid #32f506; */
+    /* visual border removed to avoid influencing collision logic */
 }
 
-.dino img {
-    width: 100%;
-    height: 100%;
+/* A smaller hitbox centered inside the .dino container so collisions are less sensitive */
+.dino-hitbox {
+    position: absolute;
+    width: 110px; /* slightly smaller than the image */
+    height: 110px;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    /* keep it invisible by default */
+    background: transparent;
+}
+
+/* optional debug outline: toggle by adding .debug-hitbox to body during development */
+body.debug-hitbox .dino-hitbox {
+    outline: 3px solid limegreen;
+    background: rgba(0,0,0,0.0);
+}
+
+.dino-img {
+    position: absolute;
+    bottom: -80px;
+    left: 30%;
+    width: 300px;
+    height: 300px;
     object-fit: contain;
+    pointer-events: none; /* clicks should target the game area, not the image */
 }
 
 .jump {
@@ -86,9 +107,6 @@ body {
         bottom: 300px;
     }
 
-    75% {
-        bottom: 150px;
-    }
 
     100% {
         bottom: 0;
@@ -97,13 +115,19 @@ body {
 
 .obstacle {
     height: 150px;
-    width: 50px;
+    width: 150px;
     background-color: red;
     border: 3px solid black;
     position: absolute;
     bottom: 0;
     left: 100%;
     /* higher the second value of animation property slower the movement of obstacle*/
+}
+
+.obstacle img{
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
 }
 
 .moving {
